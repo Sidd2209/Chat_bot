@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Financial Assistant</title>
+    <style>
+        body { font-family: Arial; background:#c1d5f3; }
+        .chat-box { width: 500px; margin: 50px auto; background:white; padding:20px; border-radius:20px; box-shadow:2px 4px 10px rgba(11, 236, 244, 0.325);}
+        #messages { height:500px; overflow-y:auto; margin-bottom:20px; }
+        .user { text-align:right; color:rgb(17, 17, 142); }
+        .bot { text-align:left; color:green; }
+    </style>
+</head>
+<body>
+<div class="chat-box">
+    <h3>Financial Assistant</h3>
+    <div id="messages"></div>
+    <input id="input" placeholder="Ask a finance question..." style="width:80%; border-radius:10px; border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+    <button onclick="send()" style="border-radius:10px; border:1px solid #06707e; padding:10px; margin-bottom:15px;">Send</button>
+</div>
+
+<script>
+const session_id = "user_" + Math.floor(Math.random()*10000);
+
+async function send(){
+    const input = document.getElementById("input");
+    const msg = input.value;
+    if(!msg) return;
+
+    document.getElementById("messages").innerHTML += `<div class="user">${msg}</div>`;
+    input.value="";
+
+    const res = await fetch("http://127.0.0.1:8000/chat",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({session_id:session_id, message:msg})
+    });
+
+    const data = await res.json();
+    document.getElementById("messages").innerHTML += `<div class="bot"><pre>${data.response}</pre></div>`;
+}
+</script>
+</body>
+</html>
