@@ -29,7 +29,7 @@ async function send(){
     document.getElementById("messages").innerHTML += `<div class="user">${msg}</div>`;
     input.value="";
 
-    const res = await fetch("https://chat-bot-86is.onrender.com",{
+    const res = await fetch("https://chat-bot-86is.onrender.com/chat",{
         method:"POST",
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({session_id:session_id, message:msg})
