@@ -14,7 +14,7 @@ def version():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://chat-po8wy18mh-siddharths-projects-3d8741bc.vercel.app"],   # allow frontend
+    allow_origins=["https://chat-bot-kohl-three.vercel.app"],   # allow frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
