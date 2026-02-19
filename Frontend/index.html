@@ -69,6 +69,9 @@ async function send(){
 
     addMessage("user",msg);
     input.value="";
+    autoscroll();
+
+    const typing = addTyping();
 
     const res=await fetch(backend,{
         method:"POST",
@@ -77,7 +80,9 @@ async function send(){
     });
 
     const data=await res.json();
+    typing.remove();
     addMessage("bot",data.response);
+    autoScroll();
 }
 
 /* Add message */
@@ -86,7 +91,30 @@ function addMessage(role,text){
     div.className=role==="user" ? "user-bubble" : "bot-bubble";
     div.innerText=text;
     document.getElementById("messages").appendChild(div);
+    return div;
 }
+
+function addTyping(){
+    const div=document.createElement("div");
+    div.className="bot-bubble typing";
+    div.innerText="...";
+    document.getElementById("messages").appendChild(div);
+    return div;
+}
+
+
+/* Auto scroll */
+function autoScroll(){
+    const box=document.getElementById("messages");
+    box.scrollTop=box.scrollHeight;
+}
+
+/* Enter key */
+document.getElementById("input").addEventListener("keypress", function(e){
+    if(e.key==="Enter"){
+        send();
+    }
+});
 
 /* Refresh */
 function refreshChat(){
