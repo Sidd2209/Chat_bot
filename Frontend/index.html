@@ -2,38 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FinAssist AI</title>
-
-    <!-- External CSS -->
+    <title>FinAssist Widget</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<div class="chat-box">
+<!-- Floating Chat Widget -->
+<div class="chat-widget" id="chatWidget">
 
     <!-- HEADER -->
-    <div class="header">
-        <b>💰 FinAssist AI</b>
-        <button onclick="closeChat()">✖</button>
+    <div class="chat-header">
+        <div class="bot-info">
+            <div class="bot-icon">💰</div>
+            <div>
+                <div class="bot-name">FinAssist AI</div>
+                <div class="bot-status">● We're online</div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button onclick="refreshChat()">⟳</button>
+            <button onclick="toggleChat()">✕</button>
+        </div>
     </div>
 
-    <!-- WELCOME -->
-    <div class="welcome">
-        <div id="welcomeText"></div>
-        <button class="exit-btn" onclick="exitChat()">Exit Conversation</button>
+    <!-- BODY -->
+    <div class="chat-body" id="messages">
+
+        <div class="date">Today</div>
+
+        <div class="bot-bubble">
+            Hi there! Nice to see you 🙂
+            We have a finance assistant ready to help you.
+        </div>
+
+        <div class="quick-replies">
+            <button>Yes, sure!</button>
+            <button>No, thanks!</button>
+        </div>
+
+        <div class="suggested">What are your most popular financial tips?</div>
+
     </div>
 
-    <!-- MESSAGES -->
-    <div id="messages"></div>
-
-    <!-- TOOLBAR -->
-    <div class="toolbar">
-        <button class="emoji" onclick="addEmoji()">😊</button>
-        <button class="file" onclick="uploadFile()">📎</button>
-        <input id="input" placeholder="Ask finance question..." />
-        <button class="send" onclick="send()">Send</button>
-        <button class="refresh" onclick="refreshChat()">⟳</button>
+    <!-- INPUT -->
+    <div class="chat-input">
+        <button onclick="addEmoji()">😊</button>
+        <button onclick="uploadFile()">📎</button>
+        <input id="input" placeholder="Enter message">
+        <button onclick="send()">➤</button>
     </div>
 
 </div>
@@ -43,12 +61,7 @@
 const backend="https://chat-bot-86is.onrender.com/chat";
 const session_id="user_"+Math.floor(Math.random()*10000);
 
-/* Ask user name */
-const first_name=prompt("Enter your name") || "User";
-document.getElementById("welcomeText").innerHTML=
-    `<b>Hi There! Nice to see you ${first_name}</b>`;
-
-/* Send message */
+/* Send */
 async function send(){
     const input=document.getElementById("input");
     const msg=input.value;
@@ -70,7 +83,7 @@ async function send(){
 /* Add message */
 function addMessage(role,text){
     const div=document.createElement("div");
-    div.className=role;
+    div.className=role==="user" ? "user-bubble" : "bot-bubble";
     div.innerText=text;
     document.getElementById("messages").appendChild(div);
 }
@@ -80,15 +93,10 @@ function refreshChat(){
     document.getElementById("messages").innerHTML="";
 }
 
-/* Close */
-function closeChat(){
-    document.querySelector(".chat-box").style.display="none";
-}
-
-/* Exit */
-function exitChat(){
-    alert("Conversation ended");
-    refreshChat();
+/* Toggle */
+function toggleChat(){
+    const widget=document.getElementById("chatWidget");
+    widget.style.display="none";
 }
 
 /* Emoji */
@@ -96,7 +104,7 @@ function addEmoji(){
     document.getElementById("input").value+="😊";
 }
 
-/* File upload placeholder */
+/* File */
 function uploadFile(){
     alert("File upload coming next 🚀");
 }
