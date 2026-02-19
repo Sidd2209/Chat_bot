@@ -1,43 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Financial Assistant</title>
-    <style>
-        body { font-family: Arial; background:#c1d5f3; }
-        .chat-box { width: 500px; margin: 50px auto; background:white; padding:20px; border-radius:20px; box-shadow:2px 4px 10px rgba(11, 236, 244, 0.325);}
-        #messages { height:500px; overflow-y:auto; margin-bottom:20px; }
-        .user { text-align:right; color:rgb(17, 17, 142); }
-        .bot { text-align:left; color:green; }
-    </style>
+    <meta charset="UTF-8">
+    <title>FinAssist AI</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+
 <div class="chat-box">
-    <h3>Financial Assistant</h3>
+
+    <!-- HEADER -->
+    <div class="header">
+        <b>💰 FinAssist AI</b>
+        <button onclick="closeChat()">✖</button>
+    </div>
+
+    <!-- WELCOME -->
+    <div class="welcome">
+        <div id="welcomeText"></div>
+        <button class="exit-btn" onclick="exitChat()">Exit Conversation</button>
+    </div>
+
+    <!-- MESSAGES -->
     <div id="messages"></div>
-    <input id="input" placeholder="Ask a finance question..." style="width:80%; border-radius:10px; border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-    <button onclick="send()" style="border-radius:10px; border:1px solid #06707e; padding:10px; margin-bottom:15px;">Send</button>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <button class="emoji" onclick="addEmoji()">😊</button>
+        <button class="file" onclick="uploadFile()">📎</button>
+        <input id="input" placeholder="Ask finance question..." />
+        <button class="send" onclick="send()">Send</button>
+        <button class="refresh" onclick="refreshChat()">⟳</button>
+    </div>
+
 </div>
 
 <script>
-const session_id = "user_" + Math.floor(Math.random()*10000);
 
+const backend="https://chat-bot-86is.onrender.com/chat";
+const session_id="user_"+Math.floor(Math.random()*10000);
+
+/* Ask user name */
+const first_name=prompt("Enter your name") || "User";
+document.getElementById("welcomeText").innerHTML=
+    `<b>Hi There! Nice to see you ${first_name}</b>`;
+
+/* Send message */
 async function send(){
-    const input = document.getElementById("input");
-    const msg = input.value;
+    const input=document.getElementById("input");
+    const msg=input.value;
     if(!msg) return;
 
-    document.getElementById("messages").innerHTML += `<div class="user">${msg}</div>`;
+    addMessage("user",msg);
     input.value="";
 
-    const res = await fetch("https://chat-bot-86is.onrender.com/chat",{
+    const res=await fetch(backend,{
         method:"POST",
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({session_id:session_id, message:msg})
+        body:JSON.stringify({session_id:session_id,message:msg})
     });
 
-    const data = await res.json();
-    document.getElementById("messages").innerHTML += `<div class="bot"><pre>${data.response}</pre></div>`;
+    const data=await res.json();
+    addMessage("bot",data.response);
 }
+
+/* Add message */
+function addMessage(role,text){
+    const div=document.createElement("div");
+    div.className=role;
+    div.innerText=text;
+    document.getElementById("messages").appendChild(div);
+}
+
+/* Refresh */
+function refreshChat(){
+    document.getElementById("messages").innerHTML="";
+}
+
+/* Close */
+function closeChat(){
+    document.querySelector(".chat-box").style.display="none";
+}
+
+/* Exit */
+function exitChat(){
+    alert("Conversation ended");
+    refreshChat();
+}
+
+/* Emoji */
+function addEmoji(){
+    document.getElementById("input").value+="😊";
+}
+
+/* File upload placeholder */
+function uploadFile(){
+    alert("File upload coming next 🚀");
+}
+
 </script>
+
 </body>
 </html>
