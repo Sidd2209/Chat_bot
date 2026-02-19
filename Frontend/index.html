@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>FinAssist Widget</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico">
+
 </head>
 
 <body>
-
+<div id="launcher" onclick="openChat()">💬</div>
 <!-- Floating Chat Widget -->
 <div class="chat-widget" id="chatWidget">
 
@@ -54,6 +56,7 @@
         <button onclick="send()">➤</button>
     </div>
 
+</div>
 </div>
 
 <script>
@@ -126,6 +129,22 @@ function toggleChat(){
     const widget=document.getElementById("chatWidget");
     widget.style.display="none";
 }
+
+
+function openChat(){
+    document.getElementById("chatWidget").style.display="block";
+    document.getElementById("launcher").style.display="none";
+}
+
+function closeChat(){
+    document.getElementById("chatWidget").style.display="none";
+    document.getElementById("launcher").style.display="flex";
+}
+
+
+
+
+
 
 /* Emoji */
 function addEmoji(){

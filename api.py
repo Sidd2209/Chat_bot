@@ -14,7 +14,10 @@ def version():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://chat-bot-kohl-three.vercel.app"],   # allow frontend
+    allow_origins=["http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "https://chat-bot-kohl-three.vercel.app",
+        "https://chat-bot-frontend-rw1t.onrender.com"],   # allow frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
