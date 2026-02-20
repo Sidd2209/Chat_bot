@@ -58,11 +58,21 @@ body {
 
 /* Body */
 .chat-body {
-    flex:1;
-    padding:12px;
-    overflow-y:auto;
-    background:#f7f8fc;
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: #f7f8fc;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
 }
+
+.chat-body::after {
+    content:"";
+    height:6px;
+    flex-shrink:0;
+}
+
 
 .date {
     text-align:center;
@@ -103,6 +113,10 @@ body {
     background:white;
     cursor:pointer;
 }
+
+
+
+
 
 .suggested {
     border:1px solid #6a11cb;
@@ -179,3 +193,4 @@ body {
     from{transform:scale(.8);opacity:0;}
     to{transform:scale(1);opacity:1;}
 }
+

@@ -5,12 +5,6 @@ from llm import get_llm
 from langchain_core.messages import HumanMessage, AIMessage
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
-import sys
-
-@app.get("/version")
-def version():
-    return {"python_version": sys.version}
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +16,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+import sys
+
+@app.get("/version")
+def version():
+    return {"python_version": sys.version}
+
+
+
 
 
 llm = get_llm()

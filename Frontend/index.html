@@ -74,6 +74,7 @@ async function send(){
     input.value="";
     autoScroll();
 
+
     const typing = addTyping();
 
     const res=await fetch(backend,{
@@ -109,7 +110,9 @@ function addTyping(){
 /* Auto scroll */
 function autoScroll(){
     const box=document.getElementById("messages");
-    box.scrollTop=box.scrollHeight;
+    requestAnimationFrame(()=>{
+        box.scrollTop = box.scrollHeight;
+    });
 }
 
 /* Enter key */
