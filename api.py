@@ -4,6 +4,10 @@ from database import save_message, load_recent_history
 from llm import get_llm
 from langchain_core.messages import HumanMessage, AIMessage
 from fastapi.middleware.cors import CORSMiddleware
+from prompt import SYSTEM_PROMPT
+from langchain_core.messages import SystemMessage
+from memory_manager import summarize_if_needed
+from database import load_summary
 app = FastAPI()
 
 app.add_middleware(
@@ -28,11 +32,7 @@ def version():
 
 llm = get_llm()
 
-SYSTEM_PROMPT = """
-You are a professional financial assistant.
-Answer ONLY finance-related topics.
-Be logical, clear, and professional.
-"""
+
 
 class ChatRequest(BaseModel):
     session_id: str
@@ -42,19 +42,31 @@ class ChatRequest(BaseModel):
 def chat(request: ChatRequest):
 
     session_id = request.session_id
-    user_input = request.message
+    raw_user_input = request.message
+    user_input = raw_user_input + "\nRespond in BYRZ tone."
 
-    save_message(session_id, "user", user_input)
+    # save clean message
+    save_message(session_id, "user", raw_user_input)
+
+    # refresh memory
+    summarize_if_needed(session_id, llm)
+    summary = load_summary(session_id)
 
     history_rows = load_recent_history(session_id, limit=15)
 
-    messages = [HumanMessage(content=SYSTEM_PROMPT)]
+    messages = [SystemMessage(content=SYSTEM_PROMPT)]
+
+    if summary:
+        messages.append(SystemMessage(content=f"Conversation summary: {summary}"))
 
     for role, msg in history_rows:
         if role == "user":
             messages.append(HumanMessage(content=msg))
         else:
             messages.append(AIMessage(content=msg))
+
+    # add current user message
+    messages.append(HumanMessage(content=user_input))
 
     response = llm.invoke(messages)
 

@@ -5,11 +5,13 @@
     <title>FinAssist Widget</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.ico">
-
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
 </head>
 
 <body>
-<div id="launcher" onclick="openChat()">💬</div>
+
+
+<div class="page"> 
 <!-- Floating Chat Widget -->
 <div class="chat-widget" id="chatWidget">
 
@@ -18,14 +20,13 @@
         <div class="bot-info">
             <div class="bot-icon">💰</div>
             <div>
-                <div class="bot-name">FinAssist AI</div>
+                <div class="bot-name">Byrz Assistant</div>
                 <div class="bot-status">● We're online</div>
             </div>
         </div>
 
         <div class="header-actions">
-            <button onclick="refreshChat()">⟳</button>
-            <button onclick="toggleChat()">✕</button>
+            <button type="button" onclick="refreshChat(event)">⟳</button>
         </div>
     </div>
 
@@ -40,25 +41,34 @@
         </div>
 
         <div class="quick-replies">
-            <button>Yes, sure!</button>
-            <button>No, thanks!</button>
+            <button onclick="quickReply('Yes, sure!')">Yes, sure!</button>
+            <button onclick="quickReply('No, thanks!')">No, thanks!</button>
         </div>
 
-        <div class="suggested">What are your most popular financial tips?</div>
+        <div class="suggested" onclick="quickReply(this.innerText)">
+            What are your most popular financial tips?
+        </div>
 
     </div>
 
     <!-- INPUT -->
     <div class="chat-input">
-        <button onclick="addEmoji()">😊</button>
-        <button onclick="uploadFile()">📎</button>
+        <button type="button" onclick="toggleEmoji()">😊</button>
+        <button type="button" onclick="uploadFile()">📎</button>
+        
         <input id="input" placeholder="Enter message">
         <button onclick="send()">➤</button>
+
+
+        <div id="emojiPicker"
+        style="position:absolute; bottom:60px;right:2px; display:none; z-index:999;">
+
+        
+        </div>
     </div>
-
 </div>
 </div>
-
+<input type="file" id="fileInput" style="display:none" onchange="handleFile(event)">
 <script>
 
 const backend="https://chat-bot-86is.onrender.com/chat";
@@ -89,6 +99,35 @@ async function send(){
     autoScroll();
 }
 
+async function quickReply(text){
+
+    // ⭐ add user message
+    addMessage("user", text);
+    autoScroll();
+
+    // ⭐ remove quick replies block
+    document.querySelectorAll(".quick-replies button")
+    .forEach(b=>b.disabled=true);
+
+    // ⭐ show typing
+    const typing = addTyping();
+
+    // ⭐ send to backend
+    const res = await fetch(backend,{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({session_id:session_id,message:text})
+    });
+
+    const data = await res.json();
+
+    typing.remove();
+    addMessage("bot", data.response);
+    autoScroll();
+}
+
+
+
 /* Add message */
 function addMessage(role,text){
     const div=document.createElement("div");
@@ -110,54 +149,123 @@ function addTyping(){
 /* Auto scroll */
 function autoScroll(){
     const box=document.getElementById("messages");
-    requestAnimationFrame(()=>{
-        box.scrollTop = box.scrollHeight;
-    });
+    box.scrollTop = box.scrollHeight;
 }
 
 /* Enter key */
 document.getElementById("input").addEventListener("keypress", function(e){
     if(e.key==="Enter"){
+        e.preventDefault();
         send();
     }
 });
 
 /* Refresh */
 function refreshChat(){
-    document.getElementById("messages").innerHTML="";
+    const box=document.getElementById("messages");
+
+    box.innerHTML = `
+        <div class="date">Today</div>
+        <div class="bot-bubble">
+            Hi there! Nice to see you 🙂
+            We have a finance assistant ready to help you.
+        </div>
+    `;
 }
 
-/* Toggle */
-function toggleChat(){
-    const widget=document.getElementById("chatWidget");
-    widget.style.display="none";
+/* ⭐ Emoji picker logic */
+let pickerCreated = false;
+
+function toggleEmoji(){
+    const pickerDiv = document.getElementById("emojiPicker");
+
+    // create only once
+    if(!pickerCreated){
+        const picker = new EmojiMart.Picker({
+            theme: "light",
+            onEmojiSelect: (emoji)=>{
+                document.getElementById("input").value += emoji.native;
+            }
+        });
+
+        pickerDiv.appendChild(picker);
+        pickerCreated = true;
+    }
+
+    // toggle visibility
+    pickerDiv.style.display =
+        pickerDiv.style.display === "none" ? "block" : "none";
 }
+document.addEventListener("click", (e)=>{
+    const picker = document.getElementById("emojiPicker");
+
+    if(!e.target.closest("#emojiPicker") && !e.target.closest("[onclick='toggleEmoji()']")){
+        picker.style.display="none";
+    }
+});
 
 
-function openChat(){
-    document.getElementById("chatWidget").style.display="block";
-    document.getElementById("launcher").style.display="none";
-}
-
-function closeChat(){
-    document.getElementById("chatWidget").style.display="none";
-    document.getElementById("launcher").style.display="flex";
-}
-
-
-
-
-
-
-/* Emoji */
-function addEmoji(){
-    document.getElementById("input").value+="😊";
-}
-
-/* File */
+/* ⭐ Open file dialog */
 function uploadFile(){
-    alert("File upload coming next 🚀");
+    document.getElementById("fileInput").click();
 }
+
+/* ⭐ Handle selected file */
+function handleFile(e){
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const messages = document.getElementById("messages");
+
+    // ⭐ IMAGE FILE
+    if(file.type.startsWith("image/")){
+        const wrapper = document.createElement("div");
+        wrapper.className = "user-bubble";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.maxWidth = "160px";
+        img.style.borderRadius = "10px";
+        img.style.display = "block";
+
+        wrapper.appendChild(img);
+        messages.appendChild(wrapper);
+    }
+
+    // ⭐ VIDEO FILE
+    else if(file.type.startsWith("video/")){
+        const wrapper = document.createElement("div");
+        wrapper.className="user-bubble";
+
+        const video=document.createElement("video");
+        video.src=URL.createObjectURL(file);
+        video.controls=true;
+        video.style.maxWidth="160px";
+
+        wrapper.appendChild(video);
+        messages.appendChild(wrapper);
+    }
+
+    // ⭐ OTHER FILES
+    else{
+        const wrapper=document.createElement("div");
+        wrapper.className="user-bubble";
+        wrapper.innerText="📎 "+file.name;
+        messages.appendChild(wrapper);
+    }
+
+    autoScroll();
+
+    // ⭐ IMPORTANT → allow same file again
+    e.target.value="";
+
+    // ⭐ OPTIONAL → send to backend
+    uploadToBackend(file);
+    function uploadToBackend(file){
+        console.log("Upload placeholder:", file.name);
+    }
+}
+
 
 </script>
 
