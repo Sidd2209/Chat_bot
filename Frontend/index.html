@@ -125,7 +125,19 @@ async function quickReply(text){
     addMessage("bot", data.response);
     autoScroll();
 }
+function formatMessage(text){
 
+    // ⭐ line breaks
+    text = text.replace(/\n/g,"<br>");
+
+    // ⭐ bullet points
+    text = text.replace(/•/g,"<br>•");
+
+    // ⭐ numbered lists
+    text = text.replace(/(\d+\.)/g,"<br>$1");
+
+    return text;
+}
 
 
 /* Add message */
