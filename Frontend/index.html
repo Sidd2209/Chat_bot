@@ -132,7 +132,7 @@ async function quickReply(text){
 function addMessage(role,text){
     const div=document.createElement("div");
     div.className=role==="user" ? "user-bubble" : "bot-bubble";
-    div.innerText=text;
+    div.innerHTML = formatMessage(text);
     document.getElementById("messages").appendChild(div);
     return div;
 }
